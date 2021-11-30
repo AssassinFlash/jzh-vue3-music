@@ -9,18 +9,27 @@
 <script>
 import { ref } from 'vue'
 import useScroll from './use-scroll'
+
 export default {
   name: 'scroll',
   // 默认列表是不能点击的，但是作为封装的组件，应该是要能接收组件传来的配置参数进行配置
   props: {
+    // 是否可以点击列表
     click: {
       type: Boolean,
       default: true
+    },
+    // 为0不会派发scroll事件，为3则可派发scroll，从而监听滚动坐标值
+    probeType: {
+      type: Number,
+      default: 0
     }
   },
-  setup (props) {
+  // 自定义派发事件
+  emits: ['scroll'],
+  setup (props, { emit }) {
     const rootRef = ref(null)
-    useScroll(rootRef, props)
+    useScroll(rootRef, props, emit)
     return {
       rootRef
     }

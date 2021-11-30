@@ -6,15 +6,21 @@ import { ref, onMounted, onUnmounted } from 'vue'
 // ObserveDOM观察到数据更新后重新计算DOM，也就是执行refresh方法
 // 这样DOM的高度就一定是内容的高度，就可产生滚动
 BScroll.use(ObserveDOM)
-// 组件传来的DOM元素和相关配置参数
-export default function useScroll (wrapperRef, options) {
+// 组件传来的DOM元素和相关配置参数还有自定义派发事件
+export default function useScroll (wrapperRef, options, emit) {
   // 同样是在mounted钩子中获取滚动的DOM元素
   const scroll = ref(null)
   onMounted(() => {
-    scroll.value = new BScroll(wrapperRef.value, {
+    const scrollVal = scroll.value = new BScroll(wrapperRef.value, {
       observeDOM: true,
       ...options
     })
+    if (options.probeType > 0) {
+      scrollVal.on('scroll', pos => {
+        // 通过自定义事件把scroll派发出去
+        emit('scroll', pos)
+      })
+    }
   })
   onUnmounted(() => {
     scroll.value.destroy()

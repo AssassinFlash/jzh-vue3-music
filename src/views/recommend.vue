@@ -5,7 +5,7 @@
       且scroll组件使用了插槽的方式，所以要明确哪些是要滚动的内容，将滚动的内容传给scroll组件
       给scroll组件加样式就相当于给scroll组件默认渲染的div(滚动容器)加样式
      -->
-    <scroll class="recommend-content">
+    <scroll class="recommend-content" v-loading="loading">
       <div>
         <div class="slider-wrapper">
           <div class="slider-content">
@@ -13,11 +13,11 @@
           </div>
         </div>
         <div class="recommend-list">
-          <h1 class="list-title">热门歌单推荐</h1>
+          <h1 class="list-title" v-show="!loading">热门歌单推荐</h1>
           <ul>
             <li class="item" v-for="item in albums" :key="item.id">
               <div class="icon">
-                <img :src="item.pic" width="60" height="60" alt=""/>
+                <img v-lazy="item.pic" width="60" height="60" alt=""/>
               </div>
               <div class="text">
                 <h2 class="name">{{ item.username }}</h2>
@@ -46,6 +46,12 @@ export default {
     return {
       sliders: [],
       albums: []
+    }
+  },
+  computed: {
+    // 通过计算属性动态改变loading值，从而动态插入删除loading组件
+    loading () {
+      return !this.sliders.length && !this.albums.length
     }
   },
   // 获取轮播图
