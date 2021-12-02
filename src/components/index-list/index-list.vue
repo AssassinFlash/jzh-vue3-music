@@ -2,6 +2,7 @@
   <!-- 滚动容器 为了监听滚动坐标，需要设置probeType=3 且监听自定义派发事件 -->
   <scroll
     class="index-list"
+    ref="scrollRef"
     :probe-type="3"
     @scroll="onScroll"
   >
@@ -20,6 +21,7 @@
             class="item"
             v-for="item in group.list"
             :key="item.id"
+            @click="onItemClick(item)"
           >
             <img class="avatar" v-lazy="item.pic" alt="">
             <span class="name">{{ item.name }}</span>
@@ -35,12 +37,36 @@
     <div class="fixed" :style="fixedStyle" v-show="fixedTitle">
       <div class="fixed-title">{{ fixedTitle }}</div>
     </div>
+    <!--
+      分类标题导航
+      绑定自定义属性data-index为index即可让touch事件的event对象通过event.target拿到index对应的li
+      监听触摸开始事件，回调做处理
+      监听触摸移动事件，回调做处理
+     -->
+    <div
+      class="shortcut"
+      @touchstart.stop.prevent="onShortcutTouchStart"
+      @touchmove.stop.prevent="onShortcutTouchMove"
+    >
+      <ul>
+        <li
+          class="item"
+          v-for="(item,index) in shortcutList"
+          :key="index"
+          :data-index="index"
+          :class="{ 'current' : currentIndex === index }"
+        >
+          {{ item }}
+        </li>
+      </ul>
+    </div>
   </scroll>
 </template>
 
 <script>
 import Scroll from '../base/scroll/scroll'
 import useFixed from './use-fixed'
+import useShortCut from '@/components/index-list/use-shortcut'
 
 export default {
   name: 'IndexList',
@@ -55,18 +81,40 @@ export default {
       }
     }
   },
-  setup (props) {
+  emit: ['select'],
+  setup (props, { emit }) {
+    const onItemClick = function (item) {
+      // 派发自定义事件
+      emit('select', item)
+    }
+
     const {
       groupRef,
       onScroll,
       fixedTitle,
-      fixedStyle
+      fixedStyle,
+      currentIndex
     } = useFixed(props)
+
+    const {
+      shortcutList,
+      onShortcutTouchStart,
+      scrollRef,
+      onShortcutTouchMove
+    } = useShortCut(props, groupRef)
     return {
+      onItemClick,
+      // fixed
       groupRef,
       onScroll,
       fixedTitle,
-      fixedStyle
+      fixedStyle,
+      currentIndex,
+      // shortcut
+      shortcutList,
+      onShortcutTouchStart,
+      scrollRef,
+      onShortcutTouchMove
     }
   }
 }
@@ -79,6 +127,7 @@ export default {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: $color-background;
 
   .group {
     padding-bottom: 30px;
@@ -124,6 +173,30 @@ export default {
       font-size: $font-size-small;
       color: $color-text-l;
       background: $color-highlight-background;
+    }
+  }
+
+  .shortcut {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    padding: 20px 0;
+    border-radius: 10px;
+    text-align: center;
+    background: $color-background-d;
+    font-family: Helvetica;
+
+    .item {
+      padding: 3px;
+      line-height: 1;
+      color: $color-text-l;
+      font-size: $font-size-small;
+
+      &.current {
+        color: $color-theme;
+      }
     }
   }
 }

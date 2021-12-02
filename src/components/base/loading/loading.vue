@@ -1,7 +1,7 @@
 <template>
   <div class="loading">
     <div class="loading-content">
-      <img src="loading.gif" alt="" width="30" height="30">
+      <img src="./loading.gif" alt="" width="30" height="30">
       <p class="desc">{{ title }}</p>
     </div>
   </div>

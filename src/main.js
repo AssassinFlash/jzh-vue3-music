@@ -10,7 +10,9 @@ import './assets/scss/index.scss'
 import lazyPlugin from 'vue3-lazy'
 // 引入自定义的loadingDirective自定义指令loading
 import loadingDirective from '@/components/base/loading/directive'
+// 引入自定义noResult指令
+import noResultDirective from '@/components/base/no-result/directive'
 
 createApp(App).use(store).use(router).use(lazyPlugin, {
   loading: require('./assets/images/default.png')
-}).directive('loading', loadingDirective).mount('#app')
+}).directive('loading', loadingDirective).directive('no-result', noResultDirective).mount('#app')

@@ -13,7 +13,14 @@ const routes = [
   {
     path: '/singer',
     name: 'Singer',
-    component: () => import('../views/singer.vue')
+    component: () => import('../views/singer.vue'),
+    children: [
+      {
+        path: ':id', // 动态参数，路由跳转使用params传参
+        name: 'SingerDetail',
+        component: () => import('@/views/singer-detail')
+      }
+    ]
   },
   {
     path: '/top-list',

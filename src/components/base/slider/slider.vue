@@ -55,6 +55,7 @@ export default {
 
 <style lang="scss" scoped>
 .slider {
+  min-height: 1px;
   // 因为display:inline-block;行内块元素，换行会被解释成是空格，由此消除行内块元素之间的空隙
   font-size: 0;
   // 触摸输入触发默认行为
@@ -97,7 +98,7 @@ export default {
       border-radius: 50%;
       margin: 0 4px;
       background: $color-text-l;
-      transition: all .2s ease;
+      transition: all .1s ease;
 
       &.active {
         width: 20px;
