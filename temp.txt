@@ -1,0 +1,137 @@
+    const store = useStore() // 拿到store实例，拿到state的全局变量
+    // 用计算属性使得变量依赖于全局变量的修改而发生变化
+    const fullScreen = computed(() => store.state.fullScreen)
+    const currentSong = computed(() => store.getters.currentSong)
+    // 当前歌曲索引
+    const currentIndex = computed(() => store.state.currentIndex)
+    // 歌曲播放列表
+    const playlist = computed(() => store.state.playlist)
+    // 拿到audio的DOM
+    const audioRef = ref(null)
+    // 监听currentSong的变化，拿到变化后新歌曲的url赋值给audio标签
+    watch(currentSong, (newSong) => {
+      if (!newSong.id || !newSong.url) {
+        return
+      }
+      // 歌曲切换的时候要设置歌曲准备状态为false，给音频组件一个缓冲时间
+      songReady.value = false
+      const audioEl = audioRef.value
+      audioEl.src = newSong.url
+      audioEl.play()
+    })
+
+    const playing = computed(() => store.state.playing)
+    // 根据歌曲是否播放更改播放图标
+    const playIcon = computed(() => {
+      return playing.value ? 'icon-pause' : 'icon-play'
+    })
+    // 监听播放状态，与audio做联动
+    watch(playing, (newPlaying) => {
+      if (songReady.value) {
+        const audioEl = audioRef.value
+        // 更改后的playing状态为true，表示要开始播放歌曲了
+        newPlaying ? audioEl.play() : audioEl.pause()
+      }
+    })
+
+    // 歌曲是否准备好播放
+    const songReady = ref(false)
+    // 控制播放器样式，当歌曲还没准备好播放时禁用图标
+    const disableCls = computed(() => {
+      return songReady.value ? '' : 'disable'
+    })
+
+    // 歌曲缓冲好的回调函数
+    function ready () {
+      if (!songReady.value) {
+        songReady.value = true
+      }
+    }
+
+    // 如果歌曲出错了，要设置歌曲准备状态为true，这样其他函数比如下一首上一首等的判断逻辑才能通过
+    function error () {
+      songReady.value = true
+    }
+
+    // 点击播放按钮
+    function togglePlay () {
+      if (songReady.value) {
+        store.commit('setPlayingState', !playing.value)
+      }
+    }
+
+    // 音频的pause事件
+    function pause () {
+      store.commit('setPlayingState', false)
+    }
+
+    // 点击上一首
+    function prev () {
+      const list = playlist.value
+      // 若列表没有歌曲，不能执行逻辑
+      if (songReady.value && list.length) {
+        // 若列表只有一首歌，不更改index
+        if (list.length === 1) {
+          loop()
+        } else {
+          let index = currentIndex.value - 1
+          // 若当前播放歌曲已经是第一首歌，那点击上一首就要将当前歌曲索引变成歌曲播放列表的最后一首歌
+          if (index === -1) {
+            index = list.length - 1
+          }
+          store.commit('setCurrentIndex', index)
+          // 如果当前播放歌曲处于暂停状态，转成上一首后要自动播放
+          if (!playing.value) {
+            store.commit('setPlayingState', true)
+          }
+        }
+      }
+    }
+
+    // 点击下一首
+    function next () {
+      const list = playlist.value
+      if (songReady.value && list.length) {
+        if (list.length === 1) {
+          loop()
+        } else {
+          let index = currentIndex.value + 1
+          // 若当前播放歌曲是最后一首歌，点击下一首就要将当前歌曲索引变成歌曲播放列表的第一首歌
+          if (index === list.length) {
+            index = 0
+          }
+          store.commit('setCurrentIndex', index)
+          if (!playing.value) {
+            store.commit('setPlayingState', true)
+          }
+        }
+      }
+    }
+
+    // 循环播放
+    function loop () {
+      const audioEl = audioRef.value
+      // 把音频组件的当前播放时间改为0，不断从头播放
+      audioEl.currentTime = 0
+      audioEl.play()
+    }
+
+    // 点击收缩按钮
+    function goBack () {
+      store.commit('setFullscreen', false)
+    }
+
+    return {
+      fullScreen,
+      currentSong,
+      playIcon,
+      audioRef,
+      goBack,
+      ready,
+      disableCls,
+      error,
+      togglePlay,
+      pause,
+      prev,
+      next
+    }

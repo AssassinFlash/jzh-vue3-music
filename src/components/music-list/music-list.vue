@@ -174,6 +174,7 @@ export default {
       this.scrollY = -pos.y
     },
     // 监听歌曲列表的自定义select事件，获取点击的歌曲和索引
+    // 随后调用actions，给全局变量赋值
     selectItem ({
       song,
       index
