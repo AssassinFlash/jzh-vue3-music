@@ -21,3 +21,13 @@ export function shuffle (source) {
     arr[j] = t
   }
 }
+
+// 时间格式化函数
+export function formatTime (interval) {
+  // 向下取整
+  interval = interval | 0
+  // .padStart：字符串补全，限定字符串长度为2位，不够就向前补0
+  const minute = ((interval / 60 | 0) + '').padStart(2, '0')
+  const second = (interval % 60 + '').padStart(2, '0')
+  return `${minute}:${second}`
+}

@@ -1,19 +1,19 @@
-// 收藏功能的实现
+// 收藏功能的实现，利用了vuex和本地存储之间的配合
 import { useStore } from 'vuex'
 import { computed } from 'vue'
-import { remove, save } from '@/assets/js/array-store'
 import { FAVORITE_KEY } from '@/assets/js/constant'
+import { save, remove } from '@/assets/js/array-store'
 
 export default function useFavorite () {
   // data
-  const maxLen = 100 // 收藏歌曲数组最大长度
+  const maxLen = 100
 
   // vuex
   const store = useStore()
-  const favoriteList = computed(() => store.state.favoriteList) // 收藏歌曲数组
+  const favoriteList = computed(() => store.state.favoriteList) // 歌曲收藏数组
 
   // methods
-  // 收藏图标样式
+  // 收藏图标样式更改
   function getFavoriteIcon (song) {
     return isFavorite(song) ? 'icon-favorite' : 'icon-not-favorite'
   }
@@ -27,20 +27,21 @@ export default function useFavorite () {
     }
 
     if (isFavorite(song)) {
-      // 新传来的歌曲已存在收藏歌曲数组
-      // remove
       list = remove(FAVORITE_KEY, compare)
     } else {
       list = save(song, FAVORITE_KEY, compare, maxLen)
     }
+    // 最后修改全局歌曲收藏数组
     store.commit('setFavoriteList', list)
   }
 
-  // 判断歌曲是否已被收藏
+  // 判断歌曲是否在收藏数组中
   function isFavorite (song) {
-    const index = favoriteList.value.findIndex(item => {
+    function compare (item) {
       return item.id === song.id
-    })
+    }
+
+    const index = favoriteList.value.findIndex(compare)
     return index > -1
   }
 

@@ -16,6 +16,20 @@
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
       <div class="bottom">
+        <div class="progress-wrapper">
+          <span class="time time-l">{{ formatTime(currentTime) }}</span>
+          <div class="progress-bar-wrapper">
+            <!-- 监听进度条拖动的派发事件，回调修改歌曲播放进度 -->
+            <progress-bar
+              :progress="progress"
+              @progress-changing="onProgressChanging"
+              @progress-changed="onProgressChanged"
+            />
+          </div>
+          <span class="time time-r">
+            {{ formatTime(currentSong.duration) }}
+          </span>
+        </div>
         <div class="operators">
           <div class="icon i-left">
             <i @click="changeMode" :class="modeIcon"/>
@@ -53,12 +67,16 @@
       原因是更换src到播放这一段时间音频组件需要有一个缓冲的过程，
       因此监听canplay事件，等到歌曲准备好了才能开始播放，这样就不会报错了
       音频组件还自带了Url播放错误的自定义事件error，这里也要监听，以防Url出错，歌曲准备状态一直为false，就会无法切换
+      音频组件自带了timeupdate自定义事件，它会不断更新歌曲当前播放时间
+      音频组件自带了ended自定义事件，当歌曲播放事件走完就会派发
      -->
     <audio
       ref="audioRef"
       @pause="pause"
       @canplay="ready"
       @error="error"
+      @timeupdate="updateTime"
+      @ended="end"
     />
   </div>
 </template>
@@ -67,15 +85,21 @@
 import usePlay from './use-play'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
+import ProgressBar from './progress-bar.vue'
+import { formatTime } from '@/assets/js/util'
 
 export default {
   name: 'Player',
+  components: {
+    ProgressBar
+  },
   setup () {
     // hooks
     const {
       // data
       audioRef,
       songReady,
+      currentTime,
       // vuex
       fullScreen,
       playlist,
@@ -85,8 +109,13 @@ export default {
       // computed
       disableCls,
       playIcon,
+      progress,
       // methods
       ready,
+      updateTime,
+      onProgressChanging,
+      onProgressChanged,
+      end,
       error,
       hideFullScreen,
       togglePlay,
@@ -108,6 +137,7 @@ export default {
       // data
       audioRef,
       songReady,
+      currentTime,
       // vuex
       fullScreen,
       playlist,
@@ -117,9 +147,15 @@ export default {
       // computed
       disableCls,
       playIcon,
+      progress,
       modeIcon,
       // methods
       ready,
+      updateTime,
+      formatTime,
+      onProgressChanging,
+      onProgressChanged,
+      end,
       error,
       hideFullScreen,
       togglePlay,
@@ -205,6 +241,38 @@ export default {
       position: absolute;
       bottom: 50px;
       width: 100%;
+
+      .progress-wrapper {
+        display: flex;
+        align-items: center;
+        width: 85%;
+        margin: 0 auto;
+        padding: 10px 0;
+
+        .time {
+          // flex: flex-grow | flex-shrink | flex-basis
+          // flex-grow: 这个属性规定了 flex-grow 项在 flex 容器中分配剩余空间的相对比例;
+          // flex-shrink: 指定了 flex 元素的收缩规则，收缩大小根据收缩因子的值
+          // flex-basis: 指定了 flex 元素在主轴方向上的初始大小
+          flex: 0 0 40px;
+          line-height: 30px;
+          width: 40px;
+          font-size: $font-size-small;
+          color: $color-text;
+
+          &.time-l {
+            text-align: left;
+          }
+
+          &.time-r {
+            text-align: right;
+          }
+        }
+
+        .progress-bar-wrapper {
+          flex: 1;
+        }
+      }
 
       .operators {
         display: flex;

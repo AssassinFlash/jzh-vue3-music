@@ -1,42 +1,45 @@
-// 存储数组到localStorage的封装
+// 封装存储数组到本地存储的逻辑
 import storage from 'good-storage'
 
+// 保存数组到本地存储
+// 判断新传来的歌曲是否在歌曲收藏数组中，判断逻辑封装成insertArray函数
+// compare比较逻辑是自定义函数，比如：
+// arr.findIndex(x=>{return x.id === song.id})这个findIndex括号里的都是比较逻辑
+// 因此compare函数已经包含了传来的歌曲信息，就无需再传
 export function save (item, key, compare, maxLen) {
-  // 首先从localStorage中取出收藏歌曲数组，若没有就默认空数组
-  const items = storage.get(key, [])
-  // 把新加入收藏的歌曲加入到收藏歌曲数组中
-  // 判断：如果新传来的歌曲已经在收藏歌曲数组中，就不需要再插入了
-  insertArray(items, item, compare, maxLen)
-  storage.set(key, items)
-  return items
+  const itemArr = storage.get(key, []) // 默认为空数组
+  insertArray(itemArr, item, compare, maxLen)
+  storage.set(key, itemArr)
+  return itemArr
 }
 
 export function remove (key, compare) {
-  const items = storage.get(key, [])
-  deleteFromArray(items, compare)
-  storage.set(key, items)
-  return items
+  const itemArr = storage.get(key, [])
+  deleteFromArray(itemArr, compare)
+  storage.set(key, itemArr)
+  return itemArr
 }
 
-// 封装判断逻辑的函数，传过来比较的逻辑，进行数组插入
-// 比较逻辑中已经包含了新传来的歌曲的数据，所以不需要额外传
-function insertArray (arr, val, compare, maxLen) {
-  // 查找收藏歌曲数组中是否已存在新传来的歌曲
+// 从本地加载数组
+export function load (key) {
+  return storage.get(key, [])
+}
+
+function insertArray (arr, item, compare, maxLen) {
   const index = arr.findIndex(compare)
   if (index > -1) {
     return
   }
-  // 数组传参，对数组进行修改是对原数组进行了修改，所以不用返回数组
-  arr.unshift(val)
+  arr.unshift(item)
+  // 超出了最大长度限制就把数组第一个元素删掉
   if (maxLen && arr.length > maxLen) {
     arr.pop()
   }
 }
 
-// 封装判断逻辑，传过来比较的逻辑，进行数组删除
-function deleteFromArray (arr, compare) {
-  const index = arr.findIndex(compare)
+function deleteFromArray (itemArr, compare) {
+  const index = itemArr.findIndex(compare)
   if (index > -1) {
-    arr.splice(index, 1)
+    itemArr.splice(index, 1)
   }
 }
