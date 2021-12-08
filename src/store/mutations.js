@@ -19,6 +19,18 @@ const mutations = {
   },
   setFavoriteList (state, list) {
     state.favoriteList = list
+  },
+  addSongLyric (state, {
+    song,
+    lyric
+  }) {
+    state.sequenceList.map(item => {
+      // 在顺序列表中找到这首歌，赋值歌词
+      if (item.mid === song.mid) {
+        item.lyric = lyric
+      }
+      return item
+    })
   }
 }
 export default mutations

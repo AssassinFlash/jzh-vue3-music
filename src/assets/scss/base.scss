@@ -30,12 +30,13 @@ body, html {
 .list-enter-from, .list-leave-to {
   height: 0 !important;
 }
-
+// animation的动画效果：0的时候旋转0度，100%的时候旋转360度
 @keyframes rotate {
   0% {
-    transform: rotate(0);
+    transform: rotate(0)
   }
+
   100% {
-    transform: rotate(360deg);
+    transform: rotate(360deg)
   }
 }

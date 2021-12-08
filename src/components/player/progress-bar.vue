@@ -63,8 +63,7 @@ export default {
   // 不适用computed的原因：$el是mounted才有的，使用computed很可能得不到宽度
   watch: {
     progress (newProgress) {
-      const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
-      this.offset = newProgress * barWidth
+      this.setOffset(newProgress)
     }
   },
   created () {
@@ -109,6 +108,10 @@ export default {
       const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
       const progress = offsetWidth / barWidth
       this.$emit('progress-changed', progress)
+    },
+    setOffset (progress) {
+      const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
+      this.offset = barWidth * progress
     }
   }
 }

@@ -178,6 +178,7 @@ export default function usePlay () {
     audioRef,
     songReady,
     currentTime,
+    progressChanging,
     // vuex
     fullScreen,
     playlist,

@@ -21,6 +21,17 @@ export default function useMode () {
     }
   })
 
+  const modeText = computed(() => {
+    const playModeVal = playMode.value
+    if (playModeVal === PLAY_MODE.sequence) {
+      return '顺序播放'
+    } else if (playModeVal === PLAY_MODE.random) {
+      return '随机播放'
+    } else {
+      return '单曲循环'
+    }
+  })
+
   // methods
   // 切换播放模式
   async function changeMode () {
@@ -30,6 +41,7 @@ export default function useMode () {
 
   return {
     modeIcon,
-    changeMode
+    changeMode,
+    modeText
   }
 }
